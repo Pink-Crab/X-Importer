@@ -10,4 +10,8 @@
  * @since 0.1.0
  */
 
-return array();
+use PinkCrab\X_Importer\Admin\Settings_Page;
+
+return array(
+	Settings_Page::class,
+);

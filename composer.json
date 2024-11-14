@@ -13,14 +13,14 @@
     }],
     "autoload": {
         "psr-4": {
-            "PinkCrab\\X-Importer\\": "src"
+            "PinkCrab\\X_Importer\\": "src"
 
         },
         "files": []
     },
     "autoload-dev": {
         "psr-4": {
-            "PinkCrab\\X-Importer\\Tests\\": "tests"
+            "PinkCrab\\X_Importer\\Tests\\": "tests"
         }
     },
     "require-dev": {

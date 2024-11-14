@@ -22,9 +22,9 @@ if ( ! defined( 'WPINC' ) ) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$app = ( new App_Factory() )
-->module( \PinkCrab\Queue\Module\Perique_Queue::class )
-->module( \PinkCrab\Perique_Admin_Menu\Module\Admin_Menu::class )
+( new App_Factory() )
+	->module( \PinkCrab\Queue\Module\Perique_Queue::class )
+	->module( \PinkCrab\Perique_Admin_Menu\Module\Admin_Menu::class )
 	->module(
 		BladeOne::class,
 		function ( BladeOne $blade ): BladeOne {
@@ -33,7 +33,7 @@ $app = ( new App_Factory() )
 					$engine->directive(
 						'__',
 						function ( $e ) {
-							return "<?php echo __( $e, 'pc-cm' ); ?>";
+							return "<?php echo __( $e, 'pc-x' ); ?>";
 						}
 					)
 					->set_comment_mode( PinkCrab_BladeOne::COMMENT_NONE )
@@ -49,4 +49,4 @@ $app = ( new App_Factory() )
 	->di_rules( require __DIR__ . '/config/dependencies.php' )
 	->app_config( require __DIR__ . '/config/settings.php' )
 	->registration_classes( require __DIR__ . '/config/registration.php' )
-->boot();
+	->boot();
