@@ -23,7 +23,7 @@ tests_add_filter(
 	function () {
 		// Activate the plugin.
 		// include_once ABSPATH . 'wp-admin/includes/plugin.php';
-		// activate_plugin( 'comment-moderation/comment-moderation.php' );
+		// activate_plugin( 'x-importer/x-importer.php' );
 	}
 );
 

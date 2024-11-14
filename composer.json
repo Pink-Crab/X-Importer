@@ -3,7 +3,7 @@
     "type": "library",
     "description": "Imports tweets from a tweets.json file into a WordPress as a post type with various options",
     "keywords": [],
-    "homepage": "https://github.com/Pink-Crab/comment-moderation",
+    "homepage": "https://github.com/Pink-Crab/x-importer",
     "license": "GPL-3.0",
     "authors": [{
         "name": "Glynn Quelch",
