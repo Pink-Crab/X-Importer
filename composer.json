@@ -55,8 +55,8 @@
         "test": "./vendor/bin/phpunit --coverage-clover coverage.xml --testdox",
         "coverage": "./vendor/bin/phpunit --coverage-html coverage-report --testdox",
         "analyse": "./vendor/bin/phpstan analyse src -l8",
-        "sniff": "./vendor/bin/phpcs src views -v",
-        "format": "./vendor/bin/phpcbf src views -v",
+        "sniff": "./vendor/bin/phpcs src -v",
+        "format": "./vendor/bin/phpcbf src -v",
         "all": "composer test && composer analyse && composer sniff",
         "internationalize": [
             "@makepot",
