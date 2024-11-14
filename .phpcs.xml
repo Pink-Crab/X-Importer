@@ -52,6 +52,8 @@
 		<!-- Ignore missing type hints since we sometimes want to ignore them on hooks. -->
 		<exclude name="Squiz.Commenting.FunctionComment.TypeHintMissing"/>
 		<exclude name="Squiz.Commenting.FunctionComment.ScalarTypeHintMissing"/>
+		<!-- Allow fileblock to be after declare statements-->
+		<exclude name="PSR12.Files.FileHeader.IncorrectOrder" />
 	</rule>
 
 	<!-- Check that class comments exists. -->
