@@ -98,6 +98,7 @@ class Plugin_Page extends Menu_Page {
 	 */
 	public function enqueue( Page $page ): void {
 		Enqueue::script( 'pinkcrab_x_importer_admin_js' )
+			/* @phpstan-ignore-next-line */
 			->src( $this->app_config->url( 'assets' ) . 'js' . \DIRECTORY_SEPARATOR . 'admin.js' )
 			->footer()
 			->localize(

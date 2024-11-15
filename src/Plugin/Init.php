@@ -40,7 +40,7 @@ class Init implements Hookable {
 	/**
 	 * Register all hooks.
 	 *
-	 * @param Hook_Loader $loader
+	 * @param Hook_Loader $loader The hook loader.
 	 *
 	 * @return void
 	 */
