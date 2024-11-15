@@ -10,8 +10,12 @@
  * @since 0.1.0
  */
 
-use PinkCrab\X_Importer\Admin\Settings_Page;
+use PinkCrab\X_Importer\Plugin\Init;
+use PinkCrab\X_Importer\Admin\Plugin_Page;
+use PinkCrab\X_Importer\Admin\Ajax\New_Import_Ajax;
 
 return array(
-	Settings_Page::class,
+	Plugin_Page::class,
+	New_Import_Ajax::class,
+	Init::class,
 );

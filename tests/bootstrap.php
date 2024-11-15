@@ -9,6 +9,8 @@ require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 // Give access to tests_add_filter() function.
 require_once getenv( 'WP_PHPUNIT__DIR' ) . '/includes/functions.php';
 
+define( 'PC_X_IMPORTER_DIR', dirname( __DIR__ ) );
+
 // Load all environment variables into $_ENV
 try {
 	$dotenv = Dotenv\Dotenv::createUnsafeImmutable( __DIR__ );

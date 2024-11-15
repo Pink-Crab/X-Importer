@@ -14,6 +14,9 @@ use PinkCrab\BladeOne\BladeOne;
 use PinkCrab\BladeOne\BladeOne_Engine;
 use PinkCrab\BladeOne\PinkCrab_BladeOne;
 use PinkCrab\Perique\Application\App_Factory;
+use PinkCrab\Queue\Module\Perique_Queue as Queue;
+use PinkCrab\Perique_Admin_Menu\Module\Admin_Menu;
+use PinkCrab\Ajax\Module\Ajax;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -23,8 +26,9 @@ if ( ! defined( 'WPINC' ) ) {
 require_once __DIR__ . '/vendor/autoload.php';
 
 ( new App_Factory() )
-	->module( \PinkCrab\Queue\Module\Perique_Queue::class )
-	->module( \PinkCrab\Perique_Admin_Menu\Module\Admin_Menu::class )
+	->module( Queue::class )
+	->module( Admin_Menu::class )
+	->module( Ajax::class )
 	->module(
 		BladeOne::class,
 		function ( BladeOne $blade ): BladeOne {
