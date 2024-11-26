@@ -183,7 +183,6 @@ class Test_New_Import_Ajax extends WP_UnitTestCase {
 
 		$this->assertEquals( 'verify_args', $errors['action'] );
 		$this->assertStringContainsString( 'nonce', \strtolower( $errors['message'] ) );
-		// dump($errors);
 		// Clear the files.
 		$_FILES = array();
 	}
