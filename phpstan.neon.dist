@@ -15,3 +15,4 @@ parameters:
     ignoreErrors:
         - '/is never read, only written/'
         - '#Access to an undefined property PinkCrab\\Perique\\Application\\App_Config::\$constants#' 
+        - '#Path in require_once\(\) "\./wp-admin/includes/file\.php" is not a file or it does not exist#'
