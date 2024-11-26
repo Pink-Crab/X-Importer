@@ -10,6 +10,7 @@ require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 require_once getenv( 'WP_PHPUNIT__DIR' ) . '/includes/functions.php';
 
 define( 'PC_X_IMPORTER_DIR', dirname( __DIR__ ) );
+define( 'PC_X_IMPORTER_FIXTURES', __DIR__ . '/fixtures/' );
 
 // Load all environment variables into $_ENV
 try {

@@ -12,17 +12,8 @@ declare(strict_types=1);
 
 namespace PinkCrab\X_Importer\Tests\Plugin;
 
-use PinkCrab\X_Importer\Plugin\Init;
-
 use PinkCrab\Perique\Application\App_Config;
-
-use PinkCrab\X_Importer\Admin\Plugin_Page;
-use PinkCrab\X_Importer\Admin\Ajax\New_Import_Ajax;
-
 use PinkCrab\X_Importer\Plugin\Constants;
-
-use PinkCrab\Loader\Hook_Loader;
-
 use WP_UnitTestCase;
 
 /**

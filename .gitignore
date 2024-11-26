@@ -12,3 +12,5 @@ tests/.env
 coverage.xml
 coverage
 coverage-report
+tests/fixtures/FS/*
+!tests/fixtures/FS/readme.md
