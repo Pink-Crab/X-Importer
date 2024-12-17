@@ -19,7 +19,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use PinkCrab\Ajax\Dispatcher\Response_Factory;
 use PinkCrab\Nonce\Nonce;
-use PinkCrab\X_Importer\Importer\Json_Importer;
+use PinkCrab\X_Importer\File_System\JSON_File_Handler;
+use PinkCrab\X_Importer\Event\Import_Tweet\Import_Tweet_Service;
 
 /**
  * Handles the ajax request for new imports.
@@ -29,21 +30,30 @@ class New_Import_Ajax extends Ajax {
 	/**
 	 * The JSON importer.
 	 *
-	 * @var Json_Importer
+	 * @var JSON_File_Handler
 	 */
 	protected $json_importer;
 
 	/**
+	 * Import Tweet Service.
+	 *
+	 * @var Import_Tweet_Service
+	 */
+	protected $import_tweet_service;
+
+	/**
 	 * Constructor
 	 *
-	 * @param App_Config    $app_config    App Config.
-	 * @param Json_Importer $json_importer JSON Importer.
+	 * @param App_Config           $app_config           App Config.
+	 * @param JSON_File_Handler        $json_importer        JSON Importer.
+	 * @param Import_Tweet_Service $import_tweet_service Import Tweet Service.
 	 */
-	public function __construct( App_Config $app_config, Json_Importer $json_importer ) {
+	public function __construct( App_Config $app_config, JSON_File_Handler $json_importer, Import_Tweet_Service $import_tweet_service ) {
 		$this->action       = $app_config->constants->get_new_import_action();
 		$this->nonce_handle = $app_config->constants->get_new_import_nonce_handle();
 
-		$this->json_importer = $json_importer;
+		$this->import_tweet_service = $import_tweet_service;
+		$this->json_importer        = $json_importer;
 	}
 
 	/**
@@ -81,6 +91,15 @@ class New_Import_Ajax extends Ajax {
 				)
 			);
 		}
+
+		$result = $this->import_tweet_service->add_event(
+			array(
+				'json_path'  => $json,
+				'formatter'  => $args['format'],
+				'duplicated' => $args['duplicated'],
+				'image_url'  => $args['image_url'] ?? null,
+			)
+		);
 
 		// Do something with the request args, ideally in a service class
 		$data_to_return = array(

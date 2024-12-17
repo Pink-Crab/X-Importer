@@ -94,8 +94,8 @@ class Test_Admin_Page extends WP_UnitTestCase {
 
     /**
      * @testdox The defined scripts and styles should only be enqueued on the correct page.
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
+     * @ runInSeparateProcess
+     * @ preserveGlobalState disabled
      */
     public function test_admin_page_enqueue_conditionally(): void {
         $GLOBALS['hook_suffix'] = 'admin_page_pc_x_importer';
@@ -103,6 +103,8 @@ class Test_Admin_Page extends WP_UnitTestCase {
         // Create admin user
         $admin_user = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin_user );
+
+        $_FILES = [];
 		
         // Load the plugin.
         $this->load_plugin();

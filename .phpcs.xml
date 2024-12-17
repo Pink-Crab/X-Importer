@@ -78,6 +78,7 @@
 				<element value="pc_x_"/>
 				<element value="PinkCrab\X_Importer\" />
 				<element value="PinkCrab\X_Importer\Hooks\" />
+				<element value="Hooks" />
 			</property>
 		</properties>
 	</rule>

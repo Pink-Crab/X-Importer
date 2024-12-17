@@ -12,6 +12,8 @@ parameters:
         - %currentWorkingDirectory%/tests/*
     bootstrapFiles:
         - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+    typeAliases:
+        Import_X_Post_Action_Args: 'array{ remote_images: string|null, tweet_id: string, format: Formatter, duplicates: string }'
     ignoreErrors:
         - '/is never read, only written/'
         - '#Access to an undefined property PinkCrab\\Perique\\Application\\App_Config::\$constants#' 

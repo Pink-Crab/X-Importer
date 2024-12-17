@@ -11,6 +11,7 @@ require_once getenv( 'WP_PHPUNIT__DIR' ) . '/includes/functions.php';
 
 define( 'PC_X_IMPORTER_DIR', dirname( __DIR__ ) );
 define( 'PC_X_IMPORTER_FIXTURES', __DIR__ . '/fixtures/' );
+define( 'PC_X_IMPORTER_TEST_ROOT', __DIR__ . '/' );
 
 // Load all environment variables into $_ENV
 try {

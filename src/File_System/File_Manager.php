@@ -12,7 +12,7 @@ declare(strict_types=1);
  * @since 0.1.0
  */
 
-namespace PinkCrab\X_Importer\File_Manager;
+namespace PinkCrab\X_Importer\File_System;
 
 /**
  * The file manager service.
@@ -62,7 +62,7 @@ class File_Manager {
 	}
 
 	/**
-	 * Get the base path.
+	 * Get the base path.`
 	 *
 	 * @return string
 	 */
@@ -134,5 +134,58 @@ class File_Manager {
 	public function delete_file( string $file ): bool {
 		// Delete the file.
 		return $this->filesystem->delete( $this->base_path . $file );
+	}
+
+	/**
+	 * Generate a unique file name based on the base path.
+	 *
+	 * @param string $file_name The file name to make unique.
+	 *
+	 * @return string
+	 */
+	public function unique_file_name( string $file_name ): string {
+		// If the file does not exist, return the original name.
+		if ( ! $this->file_exists( $file_name ) ) {
+			return $file_name;
+		}
+
+		$file_parts = pathinfo( $file_name );
+
+		// If we dont have an extension, return the original name with a random prefix.
+		if ( ! isset( $file_parts['extension'] ) ) {
+			return $file_parts['filename'] . '_' . wp_generate_password( 6, false );
+		}
+
+		// @phpstan ignore-next-line
+		$extension          = esc_attr( $file_parts['extension'] );
+		$original_file_name = esc_attr( $file_parts['filename'] );
+
+		// Loop until we find a unique name.
+		$prefix = 1;
+		while ( $this->file_exists( "{$original_file_name}_{$prefix}.{$extension}" ) ) {
+			++$prefix;
+		}
+
+		return "{$original_file_name}_{$prefix}.{$extension}";
+	}
+
+	/**
+	 * Moves an uploaded file to the path.
+	 *
+	 * @param string $file The file to move.
+	 * @param string $path The relative path to move the file to.
+	 *
+	 * @return boolean
+	 */
+	public function move_uploaded_file( string $file, string $path ): bool {
+		// Get the full path.
+		$full_path = $this->base_path . $path;
+
+		// Check the file exists in $_FILES.
+		if ( ! isset( $_FILES[ $file ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			return false;
+		}
+
+		return move_uploaded_file( $_FILES[ $file ]['tmp_name'], $full_path ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 	}
 }

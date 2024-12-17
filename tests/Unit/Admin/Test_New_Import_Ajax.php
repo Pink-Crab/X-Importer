@@ -14,10 +14,14 @@ namespace PinkCrab\X_Importer\Tests\Unit\Admin;
 
 use WP_UnitTestCase;
 use Gin0115\WPUnit_Helpers\Objects;
+use Psr\Http\Message\ResponseInterface;
 use PinkCrab\X_Importer\Plugin\Constants;
-use PinkCrab\X_Importer\Importer\Json_Importer;
 use PinkCrab\Perique\Application\App_Config;
+use Psr\Http\Message\ServerRequestInterface;
+use PinkCrab\Ajax\Dispatcher\Response_Factory;
+use PinkCrab\X_Importer\File_System\JSON_File_Handler;
 use PinkCrab\X_Importer\Admin\Ajax\New_Import_Ajax;
+use PinkCrab\X_Importer\Event\Import_Tweet\Import_Tweet_Service;
 
 /**
  * Tweet
@@ -92,8 +96,8 @@ class Test_New_Import_Ajax extends WP_UnitTestCase {
 	 * @dataProvider missing_request_params
 	 */
 	public function test_new_import_ajax_missing_request_param( array $request, string $field ): void {
-		$json_importer = $this->createMock( Json_Importer::class );
-		$ajax          = new New_Import_Ajax( $this->get_app_config( 'new_import_nonce_handle', 'new_import_action' ), $json_importer );
+		$json_importer = $this->createMock( JSON_File_Handler::class );
+		$ajax          = new New_Import_Ajax( $this->get_app_config( 'new_import_nonce_handle', 'new_import_action' ), $json_importer, $this->createMock( Import_Tweet_Service::class ) );
 
 		$errors           = array();
 		$response_factory = $this->createMock( \PinkCrab\Ajax\Dispatcher\Response_Factory::class );
@@ -114,10 +118,14 @@ class Test_New_Import_Ajax extends WP_UnitTestCase {
  * @testdox If no files have been upload the process cant start and should result in an error
 */
 	public function test_new_import_ajax_no_file_uploaded(): void {
-		$json_importer = $this->createMock( Json_Importer::class );
+		$json_importer = $this->createMock( JSON_File_Handler::class );
 		$json_importer->expects( $this->never() )->method( 'create_from_upload' );
 
-		$ajax = new New_Import_Ajax( $this->get_app_config( 'new_import_nonce_handle', 'new_import_action' ), $json_importer );
+		$ajax = new New_Import_Ajax(
+			$this->get_app_config( 'new_import_nonce_handle', 'new_import_action' ),
+			$json_importer,
+			$this->createMock( Import_Tweet_Service::class )
+		);
 
 		$errors           = array();
 		$response_factory = $this->createMock( \PinkCrab\Ajax\Dispatcher\Response_Factory::class );
@@ -146,10 +154,14 @@ class Test_New_Import_Ajax extends WP_UnitTestCase {
  * @testdox If the nonce check fails, then an error should be thrown validating the request.
 */
 	public function test_new_import_ajax_nonce_check_fails(): void {
-		$json_importer = $this->createMock( Json_Importer::class );
+		$json_importer = $this->createMock( JSON_File_Handler::class );
 		$json_importer->expects( $this->never() )->method( 'create_from_upload' );
 
-		$ajax = new New_Import_Ajax( $this->get_app_config( 'new_import_nonce_handle', 'new_import_action' ), $json_importer );
+		$ajax = new New_Import_Ajax(
+			$this->get_app_config( 'new_import_nonce_handle', 'new_import_action' ),
+			$json_importer,
+			$this->createMock( Import_Tweet_Service::class )
+		);
 
 		$errors           = array();
 		$response_factory = $this->createMock( \PinkCrab\Ajax\Dispatcher\Response_Factory::class );
@@ -191,10 +203,14 @@ class Test_New_Import_Ajax extends WP_UnitTestCase {
  * @testdox An error should be thrown if the nonce is invalid.
 */
 	public function test_new_import_ajax_invalid_nonce(): void {
-		$json_importer = $this->createMock( Json_Importer::class );
+		$json_importer = $this->createMock( JSON_File_Handler::class );
 		$json_importer->expects( $this->never() )->method( 'create_from_upload' );
 
-		$ajax = new New_Import_Ajax( $this->get_app_config( 'new_import_nonce_handle', 'new_import_action' ), $json_importer );
+		$ajax = new New_Import_Ajax(
+			$this->get_app_config( 'new_import_nonce_handle', 'new_import_action' ),
+			$json_importer,
+			$this->createMock( Import_Tweet_Service::class )
+		);
 
 		$errors           = array();
 		$response_factory = $this->createMock( \PinkCrab\Ajax\Dispatcher\Response_Factory::class );
@@ -238,10 +254,14 @@ class Test_New_Import_Ajax extends WP_UnitTestCase {
  * @testdox if all request params are there, the request should be validated
 */
 	public function test_new_import_ajax_valid_request(): void {
-		$json_importer = $this->createMock( Json_Importer::class );
+		$json_importer = $this->createMock( JSON_File_Handler::class );
 		$json_importer->expects( $this->once() )->method( 'create_from_upload' )->willReturn( '{"test": "data"}' );
 
-		$ajax = new New_Import_Ajax( $this->get_app_config( 'new_import_nonce_handle', 'new_import_action' ), $json_importer );
+		$ajax = new New_Import_Ajax(
+			$this->get_app_config( 'new_import_nonce_handle', 'new_import_action' ),
+			$json_importer,
+			$this->createMock( Import_Tweet_Service::class )
+		);
 
 		$errors           = array();
 		$response_factory = $this->createMock( \PinkCrab\Ajax\Dispatcher\Response_Factory::class );

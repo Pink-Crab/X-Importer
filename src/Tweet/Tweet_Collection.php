@@ -108,7 +108,6 @@ class Tweet_Collection {
 		if ( is_null( $this->tweets ) ) {
 			$this->parse_tweets();
 		}
-
 		// If we have no tweets, return null.
 		if ( empty( $this->tweets ) ) {
 			return null;
@@ -174,7 +173,6 @@ class Tweet_Collection {
 
 		// Iterate over tweets.
 		foreach ( $this->tweets as $tweet ) {
-			// dd($tweet);
 			// If we dont have the tweet index, skip.
 			if ( ! isset( $tweet['tweet'] ) ) {
 				continue;
