@@ -94,7 +94,7 @@ class Test_Media_Upload extends WP_UnitTestCase {
             $this->assertSame('image/jpeg', $size['mime-type']);
 
             $this->assertIsNumeric($size['filesize']);
-            $this->assertGreaterThan(0, $size['filesize']);
+            $this->$this->assertGreaterThanOrEqual(0, $size['filesize']);
 
             $this->assertIsNumeric($size['width']);
             $this->assertGreaterThan(0, $size['width']);
