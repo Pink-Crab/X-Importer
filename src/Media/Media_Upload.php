@@ -112,7 +112,7 @@ class Media_Upload {
 	/**
 	 * Map the sizes to full urls and paths.
 	 *
-	 * @param array<string, array{file:string, width:integer, height:integer, filesize:integer, mime-type:string}> $sizes The sizes to map.
+	 * @param array<string, array{file:string, width:integer, height:integer, filesize?:integer, mime-type:string}> $sizes The sizes to map.
 	 *
 	 * @return array<string, array{name:string, url:string, path:string, width:integer, height:integer, filesize:integer, mime-type:string}>
 	 */
@@ -125,7 +125,7 @@ class Media_Upload {
 					'path'      => $this->wp_uploads['path'] . '/' . $size['file'],
 					'width'     => absint( $size['width'] ),
 					'height'    => absint( $size['height'] ),
-					'filesize'  => absint( $size['filesize'] ),
+					'filesize'  => absint( $size['filesize'] ?? 0 ),
 					'mime-type' => esc_attr( $size['mime-type'] ),
 				);
 			},
