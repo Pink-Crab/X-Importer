@@ -41,6 +41,7 @@ if ( getenv( 'environment_github' ) ) {
 	define( 'DB_HOST', '0.0.0.0' );
 	define( 'DB_CHARSET', 'utf8' );
 	define( 'DB_COLLATE', '' );
+	define('FS_METHOD', 'direct');
 } else {
 	// IF YOU ARE PLANNING TO RUN THESE TESTS LOCALLY, SET THESE TO MATCH YOUR DB.
 	define( 'DB_NAME', getenv( 'WP_DB_NAME' ) );

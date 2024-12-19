@@ -3,23 +3,21 @@
 declare(strict_types=1);
 
 /**
- * Json Importer.
- *
- * This class is responsible for importing JSON files.
+ * JSON File Handler
  *
  * @package PinkCrab\X_Importer
  *
  * @since 0.1.0
  */
 
-namespace PinkCrab\X_Importer\Importer;
+namespace PinkCrab\X_Importer\File_System;
 
-use PinkCrab\X_Importer\File_Manager\File_Manager;
+use PinkCrab\X_Importer\File_System\File_Manager;
 
 /**
  * Json Importer.
  */
-class Json_Importer {
+class JSON_File_Handler {
 
 	/**
 	 * Holds the file manager.
@@ -29,7 +27,7 @@ class Json_Importer {
 	protected $file_manager;
 
 	/**
-	 * Creates a new instance of the Json_Importer.
+	 * Creates a new instance of the JSON_File_Handler.
 	 *
 	 * @param File_Manager $file_manager The file manager.
 	 */
@@ -44,7 +42,10 @@ class Json_Importer {
 	 *
 	 * @return string
 	 */
-	public function create_from_global( string $file_name ): string {
+	public function create_from_filename( string $file_name ): string {
+		// Get the filename from the path.
+		$file_name = basename( $file_name );
+
 		// @GLYNN add error handling
 		return $this->file_manager->get_file_contents( $file_name ) ?? '';
 	}
@@ -61,46 +62,18 @@ class Json_Importer {
 	}
 
 	/**
-	 * Get a unique file name.
-	 *
-	 * @param string $file_name The file name.
-	 *
-	 * @return string
-	 */
-	private function unique_file_name( string $file_name ): string {
-		// If the file does not exist, return the original name.
-		if ( ! $this->file_manager->file_exists( $file_name ) ) {
-			return $file_name;
-		}
-
-		$file_parts = pathinfo( $file_name );
-
-		// If we dont have an extension, return the original name with a random prefix.
-		if ( ! isset( $file_parts['extension'] ) ) {
-			return $file_parts['filename'] . '_' . wp_generate_password( 6, false );
-		}
-
-		// @phpstan ignore-next-line
-		$extension          = esc_attr( $file_parts['extension'] );
-		$original_file_name = esc_attr( $file_parts['filename'] );
-
-		// Loop until we find a unique name.
-		$prefix = 1;
-		while ( $this->file_manager->file_exists( "{$original_file_name}_{$prefix}.{$extension}" ) ) {
-			++$prefix;
-		}
-
-		return "{$original_file_name}_{$prefix}.{$extension}";
-	}
-
-	/**
 	 * Stream the file contents to the file system.
 	 *
 	 * @param string $file_name The file name.
 	 *
-	 * @return string|null The filepath or null if failed.
+	 * @return string The filepath
+	 *
+	 * @throws \Exception If the file does not exist in the global $_FILES.
+	 * @throws \Exception If the file is not a JSON file.
+	 * @throws \Exception If the file cannot be moved to the file system.
+	 * @throws \Exception If the file does not exist in the file system.
 	 */
-	public function create_from_upload( string $file_name ): ?string {
+	public function create_from_upload( string $file_name ): string {
 		// Check if the file exists in the global $_FILES.
 		if ( ! $this->file_exists_in_global( $file_name ) ) {
 			throw new \Exception( 'File not found in global $_FILES' );
@@ -110,13 +83,16 @@ class Json_Importer {
 			throw new \Exception( 'Only JSON files can be supplied' );
 		}
 
+		// Create the base path if it does not exist.
 		$this->file_manager->create_base_path();
-		$target_file = $this->file_manager->get_base_path() . $this->unique_file_name( $_FILES[ $file_name ]['name'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+		$unique_file_name = $this->file_manager->unique_file_name( $_FILES[ $file_name ]['name'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$target_file      = $this->file_manager->get_base_path() . $unique_file_name; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Move the file to the file system.
-		$created = move_uploaded_file( $_FILES[ $file_name ]['tmp_name'], $target_file ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-
-		if ( ! $created || ! $this->file_manager->file_exists( $target_file ) ) {
+		// $created = move_uploaded_file( $_FILES[ $file_name ]['tmp_name'], $target_file ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$created = $this->file_manager->move_uploaded_file( $file_name, $unique_file_name );
+		if ( ! $created || ! $this->file_manager->file_exists( $unique_file_name ) ) {
 			throw new \Exception( 'Failed to move file to file system' );
 		}
 

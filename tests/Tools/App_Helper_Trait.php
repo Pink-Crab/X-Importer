@@ -100,4 +100,5 @@ trait App_Helper_Trait {
 			)
 		);
 	}
+
 }
