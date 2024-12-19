@@ -45,7 +45,7 @@ class New_Import_Ajax extends Ajax {
 	 * Constructor
 	 *
 	 * @param App_Config           $app_config           App Config.
-	 * @param JSON_File_Handler        $json_importer        JSON Importer.
+	 * @param JSON_File_Handler    $json_importer        JSON Importer.
 	 * @param Import_Tweet_Service $import_tweet_service Import Tweet Service.
 	 */
 	public function __construct( App_Config $app_config, JSON_File_Handler $json_importer, Import_Tweet_Service $import_tweet_service ) {

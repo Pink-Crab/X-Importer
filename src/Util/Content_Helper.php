@@ -43,9 +43,9 @@ class Content_Helper {
 	/**
 	 * Populate Hashtags.
 	 *
-	 * @param string                                                                                    $content The content to search for hashtags.
-	 * @param Tweet                                                                                     $tweet   The tweet to populate.
-	 * @param array{class:string, target:string, callable(link:string, url:string, text:string):string} $args
+	 * @param string                                                                                      $content The content to search for hashtags.
+	 * @param Tweet                                                                                       $tweet   The tweet to populate.
+	 * @param array{class?: string, target?: string, callable?: callable(string, string, string):string } $args    The args to pass to the method.
 	 *
 	 * @return string
 	 */
@@ -76,12 +76,12 @@ class Content_Helper {
 		return $content;
 	}
 
-	/**
+	/** // phpcs:ignore
 	 * Populate links
 	 *
-	 * @param string                                                                                    $content The content to search for links.
-	 * @param Tweet                                                                                     $tweet   The tweet to populate.
-	 * @param array{class:string, target:string, callable(link:string, url:string, text:string):string} $args    The args to pass to the method.
+	 * @param string                                                                                      $content The content to search for links.
+	 * @param Tweet                                                                                       $tweet   The tweet to populate.
+	 * @param array{class?: string, target?: string, callable?: callable(string, string, string):string } $args    The args to pass to the method.
 	 *
 	 * @return string
 	 */
@@ -117,9 +117,9 @@ class Content_Helper {
 	/**
 	 * Populate mentions
 	 *
-	 * @param string                                                                                    $content The content to search for mentions.
-	 * @param Tweet                                                                                     $tweet   The tweet to populate.
-	 * @param array{class:string, target:string, callable(link:string, url:string, text:string):string} $args    The args to pass to the method.
+	 * @param string                                                                                      $content The content to search for mentions.
+	 * @param Tweet                                                                                       $tweet   The tweet to populate.
+	 * @param array{class?: string, target?: string, callable?: callable(string, string, string):string } $args    The args to pass to the method.
 	 *
 	 * @return string
 	 */
@@ -155,26 +155,27 @@ class Content_Helper {
 	 *
 	 * @param Media $media The media to upload.
 	 *
-	 * @return @return array{
-	 *   'attachment_id' => string,
-	 *   'full_path'     => string,
-	 *   'full_url'      => string,
-	 *   'sizes'         => <string, array{name:string, url:string, path:string, width:integer, height:integer, filesize:integer, mime-type:string}>
+	 * @return array{
+	 *   attachment_id: integer,
+	 *   full_path: string,
+	 *   full_url: string,
+	 *   sizes: array<string, array{name:string, url:string, path:string, width:integer, height:integer, filesize:integer, mime-type:string}>
 	 * }
 	 *
-	 * @throws Exception If the remote file could not be downloaded.
-	 * @throws Exception If the file could not be created.
+	 * @throws \Exception If the remote file could not be downloaded.
+	 * @throws \Exception If the file could not be created.
 	 */
 	public static function upload_media( Media $media ): array {
 		$media_uploader = new Media_Upload();
+		$filename       = basename( strval( wp_parse_url( $media->url(), PHP_URL_PATH ) ) );
+
 		// Attempt to upload the media from remote url if set.
 		if ( ! is_null( self::$remote_media_url ) ) {
-			$path = self::$remote_media_url . dirname( $media->url() );
-
-			return $media_uploader->create_from_remote_path( $path, basename( $media->url() ) );
+			$path = self::$remote_media_url . $filename;
+			return $media_uploader->create_from_remote_path( $path, $filename );
 		}
 
 		// If not, get from the media model.
-		return $media_uploader->create_from_remote_path( $media->url(), basename( $media->url() ) );
+		return $media_uploader->create_from_remote_path( $media->url(), $filename );
 	}
 }

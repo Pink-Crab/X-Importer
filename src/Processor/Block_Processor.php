@@ -14,6 +14,7 @@ namespace PinkCrab\X_Importer\Processor;
 
 use DateTimeImmutable;
 use PinkCrab\X_Importer\Tweet\Tweet;
+use PinkCrab\X_Importer\Tweet\Entity\Media;
 use PinkCrab\Perique\Application\App_Config;
 use PinkCrab\X_Importer\Util\Content_Helper;
 use PinkCrab\X_Importer\Post_Type\Post_Repository;
@@ -23,7 +24,18 @@ use PinkCrab\X_Importer\Post_Type\Post_Repository;
  */
 final class Block_Processor implements Processor {
 
-	protected $status   = self::PENDING;
+	/**
+	 * Holds the current status of the processor.
+	 *
+	 * @var string
+	 */
+	protected $status = self::PENDING;
+
+	/**
+	 * Holds any messages from the processor.
+	 *
+	 * @var string[]
+	 */
 	protected $messages = array();
 
 	/**
@@ -66,7 +78,7 @@ final class Block_Processor implements Processor {
 		$this->messages = array();
 
 		// Checks if the post exists.
-		$args  = array(
+		$args        = array(
 			'posts_per_page' => 1,
 			'meta_query'     => array(
 				array(
@@ -75,14 +87,13 @@ final class Block_Processor implements Processor {
 				),
 			),
 		);
-		$found = $this->posts->get_post( $args );
-
+		$found       = $this->posts->get_post( $args );
 		$post_exists = null !== $found;
 
 		// If tweet exists and we are set to skip, return.
 		if ( $post_exists && 'skip' === $on_duplicate ) {
 			$this->skip_tweet( $tweet, $thread );
-		} elseif ( ! $post_exists || ( 'new' === $on_duplicate && $post_exists ) ) {
+		} elseif ( ! $post_exists || 'new' === $on_duplicate ) {
 			$this->create_tweet( $tweet, $thread );
 		} elseif ( $post_exists && 'update' === $on_duplicate ) {
 			$this->update_tweet( $tweet, $thread );
@@ -201,21 +212,31 @@ final class Block_Processor implements Processor {
 	 */
 	protected function update_tweet( Tweet $tweet, array $thread ): void {
 		try {
-			$post_id = $this->posts->get_post( $tweet->id() );
-			if ( \is_null( $post_id ) ) {
+			// Checks if the post exists.
+			$args = array(
+				'posts_per_page' => 1,
+				'meta_query'     => array(
+					array(
+						'key'   => $this->app_config->post_meta( 'tweet_id' ),
+						'value' => $tweet->id(),
+					),
+				),
+			);
+			$post = $this->posts->get_post( $args );
+			if ( \is_null( $post ) ) {
 				throw new \Exception( 'Post cant be found with ID: ' . $tweet->id() );
 			}
 			$post = $this->posts->update_post(
-				$post_id,
+				$post->ID,
 				$tweet->id(),
 				$this->compile_content( $tweet, $thread ),
 				\apply_filters( 'pc_x_importer_post_block_author', 0 ),
 				new DateTimeImmutable( $tweet->date() )
 			);
 
-			\update_post_meta( $post->ID, 'pc_x_tweet_id', $tweet->id() );
-			\update_post_meta( $post->ID, 'pc_x_tweet_thread', $thread );
-			\update_post_meta( $post->ID, 'pc_x_tweet', $tweet );
+			$this->posts->add_post_meta( $post->ID, 'pc_x_tweet_id', $tweet->id() );
+			$this->posts->add_post_meta( $post->ID, 'pc_x_tweet_thread', $thread );
+			$this->posts->add_post_meta( $post->ID, 'pc_x_tweet', $tweet );
 		} catch ( \Exception $e ) {
 			$this->status = self::ERROR;
 
@@ -374,7 +395,7 @@ final class Block_Processor implements Processor {
 	 *
 	 * @return string
 	 */
-	final public function get_status(): string {
+	public function get_status(): string {
 		return $this->status;
 	}
 
@@ -383,19 +404,14 @@ final class Block_Processor implements Processor {
 	 *
 	 * @return string[]
 	 */
-	final public function get_messages(): array {
+	public function get_messages(): array {
 		return $this->messages;
 	}
 
 	/**
 	 * Creates gallery image item from an attachment ID.
 	 *
-	 * @param array{
-	 *   'attachment_id' => string,
-	 *   'full_path'     => string,
-	 *   'full_url'      => string,
-	 *   'sizes'         => <string, array{name:string, url:string, path:string, width:integer, height:integer, filesize:integer, mime-type:string}>
-	 * } $attachment The attachment to create the gallery item for.
+	 * @param array{ attachment_id: integer, full_path: string, full_url: string, sizes: array<string, array{name:string, url:string, path:string, width:integer, height:integer, filesize:integer, mime-type:string}> } $attachment The attachment to create the gallery item for.
 	 *
 	 * @return string
 	 */

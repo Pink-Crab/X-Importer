@@ -49,9 +49,6 @@ class Import_Tweet_Event_Listener extends Abstract_Listener {
 	 * @return void
 	 */
 	protected function handle( array $args ): void {
-		pclog( 'Import_Tweet_Event_Listener::handle' );
-		pclog( count($args) );
-		pclog( $args );
 		$this->import_tweet_service->trigger_action( $args[0] );
 	}
 }

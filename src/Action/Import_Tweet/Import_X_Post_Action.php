@@ -58,7 +58,7 @@ class Import_X_Post_Action {
 	/**
 	 * Create a new instance of the Import_X_Post_Action.
 	 *
-	 * @param JSON_File_Handler     $json_importer The importer.
+	 * @param JSON_File_Handler $json_importer The importer.
 	 * @param Processor_Factory $processors    The formatter factory.
 	 */
 	public function __construct( JSON_File_Handler $json_importer, Processor_Factory $processors ) {
@@ -78,9 +78,6 @@ class Import_X_Post_Action {
 	 */
 	public function execute( Import_X_Post_Config $args ): Import_X_Post_Response {
 		// @TODO Validate the args.
-		// if ( empty( $args ) ) {
-		//  throw new \Exception( 'TODO: Add validation for args' );
-		// }
 
 		// Layout the args.
 		$batch_size = $args->batch_size();
@@ -89,12 +86,18 @@ class Import_X_Post_Action {
 		try {
 			$this->processors->create( $args->processor() );
 		} catch ( \Exception $e ) {
-			dd($e);
+			dd( $e );
 		}
 
 		// Compile the services.
-		$processor              = $this->processors->create( $args->processor() );
+		$processor = $this->processors->create( $args->processor() );
+		// @phpstan-ignore-next-line
 		$this->tweet_collection = new Tweet_Collection( $this->json_importer->create_from_filename( $args->file_path() ) );
+
+		// If we dont have a valid processor, throw an exception.
+		if ( null === $processor ) {
+			throw new \Exception( 'Invalid Processor' );
+		}
 
 		// While the iteration is smaller than the batch size.
 		while ( $iteration < $batch_size ) {
@@ -123,7 +126,11 @@ class Import_X_Post_Action {
 			// Add the tweet to the processed list.
 			$this->results->processed_tweet( $tweet );
 
-			dump( "Finished iteration: $iteration of $batch_size", $tweet );
+			dump(
+				"Finished iteration: $iteration of $batch_size"/**
+				* , $tweet
+				*/
+			);
 		}
 
 		// Add the results to the messages.

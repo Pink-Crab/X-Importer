@@ -30,12 +30,12 @@ class Media_Upload {
 	 * WP Uploads paths and dirs
 	 *
 	 * @var array{
-	 * 'path' => string,
-	 * 'url' => string,
-	 * 'subdir' => string,
-	 * 'basedir' => string,
-	 * 'baseurl' => string,
-	 * 'error' => false
+	 * path: string,
+	 * url: string,
+	 * subdir: string,
+	 * basedir: string,
+	 * baseurl: string,
+	 * error: string|false
 	 * }
 	 */
 	protected $wp_uploads;
@@ -59,25 +59,18 @@ class Media_Upload {
 	 * @param integer|null $post_id     The optional post ID.
 	 *
 	 * @return array{
-	 *   'attachment_id' => string,
-	 *   'full_path'     => string,
-	 *   'full_url'      => string,
-	 *   'sizes'         => <string, array{name:string, url:string, path:string, width:integer, height:integer, filesize:integer, mime-type:string}>
+	 *   attachment_id: integer,
+	 *   full_path: string,
+	 *   full_url: string,
+	 *   sizes: array<string, array{name:string, url:string, path:string, width:integer, height:integer, filesize:integer, mime-type:string}>
 	 * }
 	 *
-	 * @throws Exception If the remote file could not be downloaded.
-	 * @throws Exception If the file could not be created.
+	 * @throws \Exception If the remote file could not be downloaded.
+	 * @throws \Exception If the file could not be created.
 	 */
 	public function create_from_remote_path( string $remote_path, string $file_name, ?int $post_id = null ): array {
 		// Get the file contents.
 		$file_contents = $this->get_remote_file_contents( $remote_path );
-
-		// If we have HTML content, we have an error.
-		if ( strpos( $file_contents, '<!DOCTYPE html>' ) !== false
-		|| strpos( $file_contents, '<html' ) !== false
-		) {
-			throw new \Exception( 'Remote file could not be downloaded.' );
-		}
 
 		// Create the file.
 		$file_name = $this->file_manager->unique_file_name( $file_name );
@@ -89,6 +82,7 @@ class Media_Upload {
 		}
 
 		$file_url = $this->wp_uploads['url'] . '/' . $file_name;
+
 		// Compile the attachment data.
 		$attachment_args = array(
 			'guid'           => $file_url,
@@ -98,7 +92,11 @@ class Media_Upload {
 			'post_status'    => 'inherit',
 		);
 
-		$attachment_id   = wp_insert_attachment( $attachment_args, $file_path, $post_id ?? 0 );
+		$attachment_id = wp_insert_attachment( $attachment_args, $file_path, $post_id ?? 0, true );
+		if ( \is_wp_error( $attachment_id ) || 0 === $attachment_id ) {
+			throw new \Exception( 'Attachment could not be created.' );
+		}
+
 		$attachment_data = wp_generate_attachment_metadata( $attachment_id, $file_path );
 		wp_update_attachment_metadata( $attachment_id, $attachment_data );
 
@@ -114,7 +112,7 @@ class Media_Upload {
 	/**
 	 * Map the sizes to full urls and paths.
 	 *
-	 * @param <string, array{file:string, width:integer, height:integer, filesize:integer, mime-type:string}> $sizes The sizes to map.
+	 * @param array<string, array{file:string, width:integer, height:integer, filesize:integer, mime-type:string}> $sizes The sizes to map.
 	 *
 	 * @return array<string, array{name:string, url:string, path:string, width:integer, height:integer, filesize:integer, mime-type:string}>
 	 */
@@ -136,22 +134,67 @@ class Media_Upload {
 	}
 
 	/**
+	 * Get the media mime types allowed.
+	 *
+	 * @return array<string>
+	 */
+	protected function get_allowed_media_mime_types(): array {
+		// Get all allowed MIME types
+		$all_mime_types = get_allowed_mime_types();
+
+		// Define the groups for media types we want to filter
+		$media_groups = array(
+			'image/',
+			'video/',
+			'audio/',
+		);
+
+		// Filter MIME types based on the groups
+		$media_mime_types = array_filter(
+			$all_mime_types,
+			function ( $mime ) use ( $media_groups ) {
+				foreach ( $media_groups as $group ) {
+					if ( strpos( $mime, $group ) === 0 ) {
+						return true;
+					}
+				}
+				return false;
+			}
+		);
+
+		return $media_mime_types;
+	}
+
+	/**
 	 * Get the contents of a remote file.
 	 *
 	 * @param string $url The remote url.
 	 *
-	 * @return string|null
+	 * @return string
+	 *
+	 * @throws \Exception If the remote file could not be downloaded.
+	 * @throws \Exception If the remote file is not an allowed media type.
 	 */
-	protected function get_remote_file_contents( string $url ): ?string {
-		// Get image file contents from remote url.
-		$ch = curl_init( $url );                         // phpcs:ignore
-		curl_setopt( $ch, CURLOPT_HEADER, 0 );           // phpcs:ignore
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );   // phpcs:ignore
-		curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 30 );  // phpcs:ignore
-		$image_raw = curl_exec( $ch );                   // phpcs:ignore
-		curl_close( $ch );                               // phpcs:ignore
+	protected function get_remote_file_contents( string $url ): string {
+		// Get the remote contents.
+		$response = wp_remote_get( $url, array( 'timeout' => 15 ) );
+		if ( is_wp_error( $response ) ) {
+			throw new \Exception( 'Remote file could not be downloaded.' );
+		}
 
-		return $image_raw;
+		$contents = wp_remote_retrieve_body( $response );
+		$type     = wp_remote_retrieve_header( $response, 'content-type' );
+
+		if ( is_array( $type ) ) {
+			$type = $type[0];
+		}
+
+		// If the media type is not allowed, throw an exception.
+		if ( ! in_array( $type, $this->get_allowed_media_mime_types(), true ) ) {
+			throw new \Exception( 'Remote file is not an allowed media type - ' . esc_html( $type ) . '.' );
+		}
+
+		return $contents;
 	}
 
 	/**

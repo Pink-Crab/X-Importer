@@ -33,7 +33,7 @@ class Import_Tweet_Event extends Async_Event {
 	/**
 	 * Add data to the event.
 	 *
-	 * @param array $data The data to add to the event.
+	 * @param array<string, mixed> $data The data to add to the event.
 	 *
 	 * @return void
 	 */

@@ -13,8 +13,9 @@ parameters:
     bootstrapFiles:
         - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
     typeAliases:
-        Import_X_Post_Action_Args: 'array{ remote_images: string|null, tweet_id: string, format: Formatter, duplicates: string }'
+        Import_X_Post_Action_Args: 'array{json_path: mixed, img_url: mixed, duplicated: mixed, formatter: mixed, per_batch: mixed, delay: mixed}'
     ignoreErrors:
         - '/is never read, only written/'
         - '#Access to an undefined property PinkCrab\\Perique\\Application\\App_Config::\$constants#' 
         - '#Path in require_once\(\) "\./wp-admin/includes/file\.php" is not a file or it does not exist#'
+        - '#Path in require_once\(\) "\./wp-admin/includes/image\.php" is not a file or it does not exist#'

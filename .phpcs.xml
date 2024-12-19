@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="pinkcrab-x-importer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd">
+<ruleset name="pinkcrab-x-importer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd">
 	<description>Custom Ruleset for the PinkCrab Comment Moderation Plugin.</description>
 
 	<exclude-pattern>/vendor/*</exclude-pattern>
@@ -10,32 +11,39 @@
 	<exclude-pattern>/coverage-report/*</exclude-pattern>
 
 	<!-- How to scan. -->
-	<arg value="sp"/> <!-- Show sniff and progress. -->
-	<arg name="colors"/> <!-- Show results with colors. Disable if working on Windows. -->
-	<arg name="parallel" value="8"/> <!-- Enables parallel processing when available for faster results. -->
-	<arg name="extensions" value="php"/> <!-- Only scan PHP files. -->
+	<arg value="sp" /> <!-- Show sniff and progress. -->
+	<arg name="colors" /> <!-- Show results with colors. Disable if working on Windows. -->
+	<arg name="parallel" value="8" /> <!-- Enables parallel processing when available for faster
+	results. -->
+	<arg name="extensions" value="php" /> <!-- Only scan PHP files. -->
 
-	<!-- Run against the PHPCompatibilityWP ruleset and check for cross-version support for PHP 8.1 and higher. -->
-	<rule ref="PHPCompatibilityWP"/>
-	<config name="testVersion" value="8.1-"/>
+	<!-- Run against the PHPCompatibilityWP ruleset and check for cross-version support for PHP 8.1
+	and higher. -->
+	<rule ref="PHPCompatibilityWP" />
+	<config name="testVersion" value="8.1-" />
+
+	<!-- Allow PHPStan class strings -->
+	<config name="typeHints.ignoredTypes" value="class-string" />
 
 	<!-- Run against the WordPress-Extra ruleset and check for the minimum supported WP version. -->
 	<rule ref="WordPress-Extra">
 		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
 		<exclude name="WordPress.Files.FileName.InvalidClassFileName" />
 	</rule>
-	<config name="minimum_wp_version" value="6.1"/>
+	<config name="minimum_wp_version" value="6.1" />
 
 	<!-- Disallow blank lines at start/end of for/foreach/if blocks. -->
 	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing">
 		<properties>
-			<property name="blank_line_check" value="true"/>
+			<property name="blank_line_check" value="true" />
 		</properties>
 	</rule>
 
-	<!-- Ensure documentation blocks follow basic formatting like containing a short description and not mixing tag groups. -->
+	<!-- Ensure documentation blocks follow basic formatting like containing a short description and
+	not mixing tag groups. -->
 	<rule ref="Generic.Commenting.DocComment">
-		<!-- Ignore indentation as it conflicts with our attempts to align across multiple tag blocks. -->
+		<!-- Ignore indentation as it conflicts with our attempts to align across multiple tag
+		blocks. -->
 		<exclude name="Generic.Commenting.DocComment.TagValueIndent" />
 		<!-- Ignore @param tags not being first since normally start with @since and @version tags. -->
 		<exclude name="Generic.Commenting.DocComment.ParamNotFirst" />
@@ -50,8 +58,8 @@
 			<property name="skipIfInheritdoc" value="true" />
 		</properties>
 		<!-- Ignore missing type hints since we sometimes want to ignore them on hooks. -->
-		<exclude name="Squiz.Commenting.FunctionComment.TypeHintMissing"/>
-		<exclude name="Squiz.Commenting.FunctionComment.ScalarTypeHintMissing"/>
+		<exclude name="Squiz.Commenting.FunctionComment.TypeHintMissing" />
+		<exclude name="Squiz.Commenting.FunctionComment.ScalarTypeHintMissing" />
 		<!-- Allow fileblock to be after declare statements-->
 		<exclude name="PSR12.Files.FileHeader.IncorrectOrder" />
 	</rule>
@@ -62,11 +70,16 @@
 		<exclude name="Squiz.Commenting.ClassComment.TagNotAllowed" />
 	</rule>
 
+	<!-- Allow functions with unused params, needed for callbacks -->
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
+        <exclude name="Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed"/>
+    </rule>
+
 	<!-- Check that the proper text domain(s) is used everywhere. -->
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="pc-x"/>
+				<element value="pc-x" />
 			</property>
 		</properties>
 	</rule>
@@ -75,7 +88,7 @@
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
-				<element value="pc_x_"/>
+				<element value="pc_x_" />
 				<element value="PinkCrab\X_Importer\" />
 				<element value="PinkCrab\X_Importer\Hooks\" />
 				<element value="Hooks" />

@@ -17,8 +17,10 @@ use PinkCrab\Queue\Event\Async_Event;
 use PinkCrab\X_Importer\Action\Action;
 use PinkCrab\Perique\Application\App_Config;
 use PinkCrab\X_Importer\Action\Import_Tweet\Import_X_Post_Action;
+use PinkCrab\X_Importer\Action\Import_Tweet\Import_X_Post_Config;
 use PinkCrab\X_Importer\Event\Import_Tweet\Import_Tweet_Event;
 use PinkCrab\X_Importer\Processor\Processor_Factory;
+use PinkCrab\X_Importer\Tests\Unit\Action\Import_Tweet\Test_Import_X_Post_Config;
 
 /**
  * Import Tweet Service for handling.
@@ -42,7 +44,7 @@ class Import_Tweet_Service {
 	/**
 	 * Import Tweet Action.
 	 *
-	 * @var Action
+	 * @var Import_X_Post_Action
 	 */
 	protected $action;
 
@@ -83,12 +85,7 @@ class Import_Tweet_Service {
 	/**
 	 * Trigger an action.
 	 *
-	 * @args array{
-	 *  json_path: string,
-	 *  images_url: string|null,
-	 *  duplicated: string,
-	 *  formatter: string
-	 * } $args The arguments for the action.
+	 * @param array{json_path: string, image_url: string|null, duplicated: string, formatter: string} $args The arguments for the action.
 	 *
 	 * @return integer|null
 	 */
@@ -120,36 +117,33 @@ class Import_Tweet_Service {
 	 *
 	 * @param array<string, mixed> $args The arguments to map.
 	 *
-	 * @return Import_X_Post_Action_Args
+	 * @return Import_X_Post_Config
 	 */
-	public function map_from_event_listener( array $args): array {
-		// pclog( 'map_from_event_listener' . join(',',$args) );
-		return array(
-			'json_path'  => $args['json_path'],
-			'img_url'    => $args['image_url'],
-			'duplicated' => $args['duplicated'],
-			'formatter'  => $args['formatter'],
-            'per_batch'  => $this->app_config->constants->get_import_per_batch(),
-            'delay'      => $this->app_config->constants->get_import_delay(),
+	public function map_from_event_listener( array $args ): Import_X_Post_Config {
+		return new Import_X_Post_Config(
+			$args['json_path'],
+			$args['image_url'],
+			$args['processor'],
+			$args['duplicated'],
+			$this->app_config->constants->get_import_per_batch(),
+			$this->app_config->constants->get_import_delay()
 		);
 	}
 
 	/**
 	 * Triggers the action.
 	 *
-	 * @param array $args The arguments for the action.
+	 * @param array<string, mixed> $args The arguments for the action.
 	 *
 	 * @return boolean
 	 */
 	public function trigger_action( array $args ): bool {
-        // pclog( 'trigger_action' );
-        // pclog( $args);
 		$args = $this->map_from_event_listener( $args );
 		try {
-			$this->last_tweet_id = $this->action->execute( $args );
+			$response            = $this->action->execute( $args );
+			$this->last_tweet_id = $response->last_tweet_id();
 			return true;
 		} catch ( \Exception $e ) {
-			$this->last_tweet_id = $this->action->undo();
 			return false;
 		}
 	}

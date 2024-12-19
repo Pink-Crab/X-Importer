@@ -12,12 +12,14 @@ declare(strict_types=1);
 
 namespace PinkCrab\X_Importer\Tests\Tweet;
 
-use PinkCrab\X_Importer\Util\Content_Helper;
+use Gin0115\WPUnit_Helpers\Objects;
 use WP_UnitTestCase;
+use PinkCrab\X_Importer\Tweet\Tweet;
 use PinkCrab\X_Importer\Tweet\Entity\Link;
 use PinkCrab\X_Importer\Tweet\Entity\Media;
+use PinkCrab\X_Importer\Util\Content_Helper;
 use PinkCrab\X_Importer\Tweet\Entity\Mention;
-use PinkCrab\X_Importer\Tweet\Tweet;
+use PinkCrab\X_Importer\Tests\Tools\Fixture_Helpers;
 
 /**
  * Tweet
@@ -27,6 +29,21 @@ use PinkCrab\X_Importer\Tweet\Tweet;
  * @group Content_Helper
  */
 class Test_Content_Helper extends WP_UnitTestCase {
+
+	/**
+	 * Clear the uploads directory on tear down
+	 *
+	 * @return void
+	 */
+	public function tear_down(): void {
+		parent::tear_down();
+		Fixture_Helpers::clear_uploads();
+
+		// Reset the internal media url.
+		$instance = new Content_Helper();
+		Objects::set_property( $instance, 'remote_media_url', null );
+	}
+
 
 	/**
  * @testdox It should be possible to parse all hashtags in a tweets content and use the default args
@@ -309,7 +326,6 @@ class Test_Content_Helper extends WP_UnitTestCase {
 
 		$parsed = Content_Helper::populate_mentions( $tweet->content(), $tweet, array( 'target' => '_self' ) );
 		$this->assertEquals( 'This is a tweet with a mention to <a href="https://x.com/username" class="mention" target="_self">@username</a>', $parsed );
-
 	}
 
 	/**
@@ -369,4 +385,41 @@ class Test_Content_Helper extends WP_UnitTestCase {
 		$this->assertEquals( 'This is a tweet with a mention to >> was <a href="https://x.com/username" class="mention" target="_blank">@username</a> now url: https://x.com/username text: @username <<', $parsed );
 	}
 
+	/**
+ * @testdox It should be possible to be passed a Media object and have it uploaded to the media library [PICTURE]
+*/
+	public function test_can_upload_media(): void {
+		$uploaded = Content_Helper::upload_media( new Media( '11', PC_X_IMPORTER_VALID_IMG_URL, 'photo', 'https://t.co/123456' ) );
+
+		$this->assertIsArray( $uploaded );
+		$this->assertArrayHasKey( 'attachment_id', $uploaded );
+		$this->assertIsNumeric( $uploaded['attachment_id'] );
+
+		$attachment = get_post( $uploaded['attachment_id'] );
+		$this->assertEquals( 'image/jpeg', $attachment->post_mime_type );
+		$this->assertEquals( 'bird', $attachment->post_name );
+		$this->assertEquals( $uploaded['full_url'], $attachment->guid );
+	}
+
+	/**
+ * @testdox It should be  possible to define a custom base URL and the images should be looked for in this dir
+*/
+	public function test_can_upload_media_with_custom_base_url(): void {
+		// remove /bird.jpeg from the end of the url.
+		$remote = str_replace( '/bird.jpeg', '', PC_X_IMPORTER_VALID_IMG_URL );
+		Content_Helper::set_remote_media_url( $remote );
+
+		$uploaded = Content_Helper::upload_media(
+			new Media( '11', 'https://some.where/bird.jpeg', 'photo', 'https://t.co/123456' )
+		);
+		// dd($uploaded);
+		$this->assertIsArray( $uploaded );
+		$this->assertArrayHasKey( 'attachment_id', $uploaded );
+		$this->assertIsNumeric( $uploaded['attachment_id'] );
+
+		$attachment = get_post( $uploaded['attachment_id'] );
+		$this->assertEquals( 'image/jpeg', $attachment->post_mime_type );
+		$this->assertEquals( 'bird', $attachment->post_name );
+		$this->assertEquals( $uploaded['full_url'], $attachment->guid );
+	}
 }

@@ -77,7 +77,7 @@ class Import_X_Post_Config {
 	 * @param integer|null            $batch_size    The batch size.
 	 * @param integer|null            $delay         The delay between imports.
 	 */
-	public function __construct(
+	public function __construct( // phpcs:ignore
 		?string $file_path,
 		?string $media_url,
 		string $processor,
@@ -93,7 +93,6 @@ class Import_X_Post_Config {
 		$this->last_tweet_id = $last_tweet_id;
 		$this->batch_size    = $batch_size ?? $this->batch_size;
 		$this->delay         = $delay ?? $this->delay;
-		dump([$this, $delay]);
 	}
 
 	/**

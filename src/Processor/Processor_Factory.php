@@ -38,12 +38,12 @@ class Processor_Factory {
 	/**
 	 * Create a new instance of the Processor.
 	 *
-	 * @param string|class-string<Processor> $Processor The Processor to create.
+	 * @param string|class-string<Processor> $processor The Processor to create.
 	 *
 	 * @return Processor|null
 	 */
-	public function create( string $Processor ): ?Processor {
-		$instance = $this->container->get( $Processor );
+	public function create( string $processor ): ?Processor {
+		$instance = $this->container->get( $processor );
 		return $instance instanceof Processor ? $instance : null;
 	}
 }

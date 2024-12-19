@@ -17,7 +17,7 @@ use PinkCrab\Enqueue\Enqueue;
 use PinkCrab\Perique_Admin_Menu\Page\Page;
 use PinkCrab\Perique\Application\App_Config;
 use PinkCrab\Perique_Admin_Menu\Page\Menu_Page;
-use PinkCrab\X_Importer\Importer\Formatter\Block_Formatter;
+use PinkCrab\X_Importer\Processor\Block_Processor;
 
 /**
  * The plugin page for the plugin.
@@ -73,7 +73,7 @@ class Plugin_Page extends Menu_Page {
 			'new_import' => array(
 				'nonce'   => $this->new_import_nonce->token(),
 				'formats' => array(
-					Block_Formatter::class => _x( 'Blocks', 'Import Format', 'pc-x' ),
+					Block_Processor::class => _x( 'Blocks', 'Import Format', 'pc-x' ),
 					'post_meta'            => _x( 'Post Meta', 'Import Format', 'pc-x' ),
 				),
 			),

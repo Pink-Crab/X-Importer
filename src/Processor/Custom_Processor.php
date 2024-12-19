@@ -19,7 +19,18 @@ use PinkCrab\X_Importer\Tweet\Tweet;
  */
 abstract class Custom_Processor implements Processor {
 
-	protected $status   = self::PENDING;
+	/**
+	 * Holds the current status of the processor.
+	 *
+	 * @var string
+	 */
+	protected $status = self::PENDING;
+
+	/**
+	 * Holds any messages from the processor.
+	 *
+	 * @var string[]
+	 */
 	protected $messages = array();
 
 	/**

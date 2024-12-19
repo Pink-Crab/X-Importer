@@ -54,7 +54,7 @@ class Post_Repository {
 	/**
 	 * Finds a post based on its slug.
 	 *
-	 * @param array $args The post args.
+	 * @param array<string, mixed> $args The post args.
 	 *
 	 * @return \WP_Post|null
 	*/
@@ -64,18 +64,8 @@ class Post_Repository {
 		$args['post_type'] = $this->get_post_type();
 
 		$found = get_posts( $args );
-		return ! empty( $found ) ? $found[0] : null;
-	}
-
-	/**
-	 * Checks if a post exists based on its slug.
-	 *
-	 * @param string $slug The post slug.
-	 *
-	 * @return boolean
-	 */
-	public function post_exists( string $slug ): bool {
-		return ! is_null( $this->get_post( $slug ) );
+		return ! empty( $found ) && $found[0] instanceof \WP_Post
+			? $found[0] : null;
 	}
 
 	/**
@@ -100,14 +90,21 @@ class Post_Repository {
 				'post_date'    => $date->format( 'Y-m-d H:i:s' ),
 				'post_type'    => esc_attr( $this->get_post_type() ),
 				'post_status'  => esc_attr( $status ),
-			)
+			),
+			true
 		);
 
 		if ( is_wp_error( $post_id ) ) {
 			throw new \Exception( 'Failed to create post: ' . esc_html( $post_id->get_error_message() ) );
 		}
 
-		return get_post( $post_id );
+		$post = get_post( $post_id );
+
+		if ( ! $post instanceof \WP_Post ) {
+			throw new \Exception( 'Failed to create post: Post not found' );
+		}
+
+		return $post;
 	}
 
 	/**
@@ -135,11 +132,23 @@ class Post_Repository {
 			)
 		);
 
+		/** // phpcs:ignore
+		 * PHPStan only sees as int, not WP_Error.
+		 *
+		 * @var integer|\WP_Error $result
+		 */
 		if ( is_wp_error( $result ) || 0 === $result ) {
-			throw new \Exception( 'Failed to update post: ' . esc_html( $result->get_error_message() ) );
+			$message = is_wp_error( $result ) ? $result->get_error_message() : 'Post not updated';
+			throw new \Exception( 'Failed to update post: ' . esc_html( $message ) );
 		}
 
-		return get_post( $post_id );
+		$post = get_post( $post_id );
+
+		if ( ! $post instanceof \WP_Post ) {
+			throw new \Exception( 'Failed to update post: Post not found' );
+		}
+
+		return $post;
 	}
 
 	/**
