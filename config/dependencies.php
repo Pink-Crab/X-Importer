@@ -35,21 +35,6 @@ return array(
 		'substitutions' => array( File_Manager::class => array( \Dice\Dice::INSTANCE => fn() => new File_Manager( Config::additional( 'json_path' ) ) ) ),
 	),
 	Block_Processor::class   => array(
-		// 'substitutions' => array( Post_Repository::class => array( \Dice\Dice::INSTANCE => fn() => new Post_Repository( Config::post_types( 'tweets' ) ) ) ),
-		'substitutions' => array(
-			Post_Repository::class => array(
-				\Dice\Dice::INSTANCE => function () {
-					$key = Config::post_types( 'tweets' );
-					$i  = new Post_Repository( $key );
-					return $i;
-					dd( $key, $i );
-							// new Post_Repository( Config::post_type( 'tweet' ) )
-				},
-			),
-		),
+		'substitutions' => array( Post_Repository::class => array( \Dice\Dice::INSTANCE => fn() => new Post_Repository( Config::post_types( 'tweets' ) ) ) ),
 	),
-	// Importer::class => array(
-	//  'shared'        => true,
-	//  'substitutions' => array( File_Manager::class => array( \Dice\Dice::INSTANCE => fn() => new File_Manager( Config::additional( 'json_path' ) ) ) ),
-	// ),
 );
