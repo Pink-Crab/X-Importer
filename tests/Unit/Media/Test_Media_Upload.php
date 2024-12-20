@@ -172,4 +172,24 @@ class Test_Media_Upload extends WP_UnitTestCase {
         // Clear the filter.
         \remove_all_filters( 'pre_http_request' );
     }
+
+	/** @testdox It should be possible to upload a video file and have it added to the media library */
+	public function test_import_video_from_url(): void {
+		$media_upload = new Media_Upload();
+		$result       = $media_upload->create_from_remote_path( PC_X_IMPORTER_VALID_VIDEO_URL, 'video.mp4' );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'attachment_id', $result );
+		$this->assertIsNumeric( $result['attachment_id'] );
+		$this->assertGreaterThan( 0, $result['attachment_id'] );
+
+		// Check the paths.
+		$this->assertArrayHasKey( 'full_path', $result );
+		$this->assertSame( PC_X_IMPORTER_FIXTURES . 'uploads/video.mp4', $result['full_path'] );
+		$this->assertArrayHasKey( 'full_url', $result );
+
+		// Sizes should be empty
+		$this->assertArrayHasKey( 'sizes', $result );
+		$this->assertEmpty( $result['sizes'] );
+	}
 }
