@@ -105,7 +105,9 @@ class Media_Upload {
 			'attachment_id' => $attachment_id,
 			'full_path'     => $file_path,
 			'full_url'      => $file_url,
-			'sizes'         => $this->map_sizes( $attachment_data['sizes'] ),
+			'sizes'         => \array_key_exists( 'sizes', $attachment_data )
+				? $this->map_sizes( $attachment_data['sizes'] )
+				: array(),
 		);
 	}
 
@@ -177,13 +179,23 @@ class Media_Upload {
 	 */
 	protected function get_remote_file_contents( string $url ): string {
 		// Get the remote contents.
-		$response = wp_remote_get( $url, array( 'timeout' => 15 ) );
+		$response = wp_remote_get(
+			$url,
+			array(
+				'timeout' => 15,
+			)
+		);
 		if ( is_wp_error( $response ) ) {
 			throw new \Exception( 'Remote file could not be downloaded.' );
 		}
 
 		$contents = wp_remote_retrieve_body( $response );
 		$type     = wp_remote_retrieve_header( $response, 'content-type' );
+
+		// If we have an octet-stream, we need to check the file contents.
+		if ( 'application/octet-stream' === $type ) {
+			$type = $this->get_mime_type( $contents );
+		}
 
 		if ( is_array( $type ) ) {
 			$type = $type[0];
@@ -195,6 +207,25 @@ class Media_Upload {
 		}
 
 		return $contents;
+	}
+
+	/**
+	 * Adds an additional check for files that return as octet-stream.
+	 *
+	 * @param mixed $contents The file contents.
+	 *
+	 * @return string|null
+	 */
+	protected function get_mime_type( $contents ): ?string {
+		$finfo = new \finfo( FILEINFO_MIME_TYPE );
+		$mime  = $finfo->buffer( $contents );
+
+		// If the mime type is octet-stream, we need to check the file extension.
+		if ( 'application/octet-stream' === $mime ) {
+			$mime = null;
+		}
+
+		return $mime ?: null; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
 	}
 
 	/**

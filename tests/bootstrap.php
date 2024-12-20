@@ -12,8 +12,8 @@ require_once getenv( 'WP_PHPUNIT__DIR' ) . '/includes/functions.php';
 define( 'PC_X_IMPORTER_DIR', dirname( __DIR__ ) );
 define( 'PC_X_IMPORTER_FIXTURES', __DIR__ . '/fixtures/' );
 define( 'PC_X_IMPORTER_TEST_ROOT', __DIR__ . '/' );
-define( 'PC_X_IMPORTER_VALID_IMG_URL', 'https://raw.githubusercontent.com/Pink-Crab/X-Importer/refs/heads/feature/create-import-tweet-events/tests/fixtures/data/bird.jpeg' );
-define( 'PC_X_IMPORTER_VALID_VIDEO_URL', 'https://raw.githubusercontent.com/Pink-Crab/X-Importer/refs/heads/feature/create-import-tweet-events/tests/fixtures/data/video.mp4' );
+define( 'PC_X_IMPORTER_VALID_IMG_URL', 'https://github.com/Pink-Crab/X-Importer/raw/refs/heads/develop/tests/fixtures/data/bird.jpeg' );
+define( 'PC_X_IMPORTER_VALID_VIDEO_URL', 'https://github.com/Pink-Crab/X-Importer/raw/refs/heads/develop/tests/fixtures/data/video.mp4' );
 
 // Load all environment variables into $_ENV
 try {
